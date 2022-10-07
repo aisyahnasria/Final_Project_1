@@ -2,6 +2,8 @@ package com.example.finalproject1;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
@@ -13,22 +15,31 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity  implements View.OnClickListener{
-    private ArrayList<String> items;
-    private ArrayAdapter<String>itemsAdapter;
+public class MainActivity extends AppCompatActivity  {
 
-    Button button;
-    RecyclerView recyclerView;
+    String []data={"bangun Pagi","cuci muka","sarapan"};
+    int count = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = (RecyclerView) findViewById(R.id.listItem);
-        button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(this);
-    }
+        List<String> items = new LinkedList<>();
+        items.add("olahraga");
 
+        RecyclerView recyclerView = findViewById(R.id.listItem);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        ListAdapter adapter = new ListAdapter(items);
+        recyclerView.setAdapter(adapter);
+        findViewById(R.id.button).setOnClickListener(view ->{
+            items.add(data[count%3]);
+            count++;
+            adapter.notifyItemInserted(items.size()-1);
+        });
+    }
 
 
     void popup(String Todo){
@@ -42,24 +53,11 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         popupForm.show();
 
         saveButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 String Todo = input.getText().toString();
-
                 popupForm.dismiss();
             }
         });
-    }
-
-
-
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.button){
-            System.out.println("berhasil");
-            popup(null);
-        }
     }
 }

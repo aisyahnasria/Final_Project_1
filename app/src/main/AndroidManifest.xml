@@ -10,9 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject1" >
         <activity
-            android:name=".ListToDo"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true" >
             <intent-filter>
