@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity  {
         ListAdapter adapter = new ListAdapter(items);
         recyclerView.setAdapter(adapter);
         findViewById(R.id.button).setOnClickListener(view ->{
+            popup(null);
             items.add(data[count%3]);
             count++;
             adapter.notifyItemInserted(items.size()-1);
