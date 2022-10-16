@@ -2,52 +2,66 @@ package com.example.finalproject1;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import android.widget.Toast;
+
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity
+    implements View.OnClickListener,
+    ListAdapter.DeleteItemListener {
 
-    String []data={"bangun Pagi","cuci muka","sarapan"};
-    int count = 0;
+    RecyclerView recyclerView;
+    Button addButton;
+
+    DatabaseHelper db;
+    List<Todo> todoList;
+    ListAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        List<String> items = new LinkedList<>();
-        items.add("olahraga");
 
-        RecyclerView recyclerView = findViewById(R.id.listItem);
+        db = new DatabaseHelper(this);
+
+        recyclerView = (RecyclerView) findViewById(R.id.listItem);
+        addButton = (Button) findViewById(R.id.button);
+        addButton.setOnClickListener(this);
+
+        loadData();
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ListAdapter adapter = new ListAdapter(items);
-        recyclerView.setAdapter(adapter);
-        findViewById(R.id.button).setOnClickListener(view ->{
-            popup(null);
-            items.add(data[count%3]);
-            count++;
-            adapter.notifyItemInserted(items.size()-1);
-        });
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.button) {
+            popup(null  , true);
+        }
     }
 
 
-    void popup(String Todo){
+    void popup(String Todo, boolean isAddNew){
         AlertDialog.Builder popupBuilder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.popup, null);
+
+
         EditText input =(EditText) view.findViewById(R.id.editToDo);
         Button saveButton = (Button) view.findViewById(R.id.buttonAdd);
+
+        if (!isAddNew) {
+            input.setText(Todo);
+        }
 
         popupBuilder.setView(view);
         AlertDialog popupForm = popupBuilder.create();
@@ -56,9 +70,33 @@ public class MainActivity extends AppCompatActivity  {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String Todo = input.getText().toString();
-                popupForm.dismiss();
+                String Task = input.getText().toString();
+                Todo todo = new Todo(Task);
+
+                if (isAddNew) {
+                    db.addTodo(todo);
+                    loadData();
+                    Toast.makeText(MainActivity.this,"Berhasil " ,Toast.LENGTH_SHORT).show();
+                    popupForm.dismiss();
+                }
+
+
             }
         });
+    }
+
+    public void loadData() {
+        todoList = db.getAllTodo();
+        listAdapter = new ListAdapter(this, todoList, this );
+        recyclerView.setAdapter(listAdapter);
+    }
+
+    @Override
+    public void onDeleteItemClick(int position) {
+        Todo todo = todoList.get(position);
+        Toast.makeText(MainActivity.this,"congratulation you have done the task",Toast.LENGTH_SHORT).show();
+        db.CompleteTodo(todo);
+        loadData();
+
     }
 }
